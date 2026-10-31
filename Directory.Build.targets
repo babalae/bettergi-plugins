@@ -1,0 +1,130 @@
+<Project>
+	<!--
+		插件工程的公共构建步骤：
+		1. 引用 BetterGI 主程序工程（只用于编译，不复制主程序及其依赖）；
+		2. 共享 src\Shared 下的源码；
+		3. 从 BetterGI.Assets.Model 包取出工程声明的 PaddleOCR 模型；
+		4. 构建后生成插件目录 artifacts\plugins\<插件标识>\（含 plugin.json）和安装包 artifacts\<插件标识>-<版本>.zip，
+		   Debug 构建时再复制到主程序 Debug 输出的 Plugins 目录；
+		5. dotnet pack 生成 NuGet 包，插件文件放在包内 plugin\ 目录，包类型 BetterGIPlugin。
+		清单与安装包格式见主程序仓库 Docs/design/plugin-system.md 第 9 节。
+	-->
+
+	<ItemGroup Condition="'$(BgiPluginId)' != ''">
+		<!-- 主程序及其依赖在运行时由 BetterGI 提供，插件目录中不带这些程序集 -->
+		<ProjectReference Include="$(BetterGIProjectPath)"
+		                  Private="false"
+		                  AdditionalProperties="Configuration=$(Configuration);Platform=x64" />
+		<!-- 只为取得模型文件的路径，不使用包中的任何资产 -->
+		<PackageReference Include="BetterGI.Assets.Model"
+		                  Version="$(BgiAssetsModelVersion)"
+		                  ExcludeAssets="all"
+		                  PrivateAssets="all"
+		                  GeneratePathProperty="true" />
+		<!-- 共享源码目前只有 OCR 插件使用；不需要的插件设 BgiIncludeSharedSource 为 false -->
+		<Compile Include="$(MSBuildThisFileDirectory)src\Shared\**\*.cs"
+		         Link="Shared\%(RecursiveDir)%(Filename)%(Extension)"
+		         Condition="'$(BgiIncludeSharedSource)' != 'false'" />
+	</ItemGroup>
+
+	<!-- NuGet 包：不输出 lib\ 与依赖，插件目录整体放进 plugin\ -->
+	<PropertyGroup Condition="'$(BgiPluginId)' != ''">
+		<PackageType>BetterGIPlugin</PackageType>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+		<PackageOutputPath>$(BgiArtifactsDir)</PackageOutputPath>
+		<NoWarn>$(NoWarn);NU5128</NoWarn>
+		<TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);BgiAddPluginToPackage</TargetsForTfmSpecificContentInPackage>
+		<BgiModelSource>$(PkgBetterGI_Assets_Model)\contentFiles\any\any\Assets\Model\PaddleOCR\</BgiModelSource>
+		<BgiStageDir>$(BgiArtifactsDir)plugins\$(BgiPluginId)\</BgiStageDir>
+	</PropertyGroup>
+
+	<!--
+		收集插件目录中的文件：
+		- 工程用 BgiPaddleOcrModel 声明模型目录，用 BgiPaddleOcrFile 声明单个模型文件；
+		- 工程用 BgiPluginContent 声明自带的资源文件（路径相对工程目录），按同样的相对路径放进插件目录。
+	-->
+	<Target Name="BgiCollectPluginFiles" Condition="'$(BgiPluginId)' != ''">
+		<Error Condition="'@(BgiPaddleOcrModel)' != '' And '$(PkgBetterGI_Assets_Model)' == ''" Text="没有找到 BetterGI.Assets.Model 包，请先还原。" />
+		<Error Condition="'@(BgiPaddleOcrModel)' != '' And !Exists('$(BgiModelSource)%(BgiPaddleOcrModel.Identity)')"
+		       Text="资源包中没有模型目录 %(BgiPaddleOcrModel.Identity)。" />
+		<ItemGroup>
+			<!-- 没有声明模型时批处理会生成一个空的条目，会把资源包根目录的文件都带进来，需要条件跳过 -->
+			<_BgiModelFile Include="$(BgiModelSource)%(BgiPaddleOcrModel.Identity)\*"
+			               ModelDirectory="%(BgiPaddleOcrModel.Identity)"
+			               Condition="'@(BgiPaddleOcrModel)' != ''" />
+			<!-- 没有声明文件时批处理会生成一个空的条目，需要条件跳过 -->
+			<_BgiExtraFile Include="$(BgiModelSource)%(BgiPaddleOcrFile.Identity)"
+			               RelativePath="%(BgiPaddleOcrFile.Identity)"
+			               Condition="'@(BgiPaddleOcrFile)' != ''" />
+			<BgiPluginFile Include="@(_BgiModelFile)"
+			               PluginPath="Models\PaddleOCR\%(_BgiModelFile.ModelDirectory)\%(_BgiModelFile.Filename)%(_BgiModelFile.Extension)" />
+			<BgiPluginFile Include="@(_BgiExtraFile)"
+			               PluginPath="Models\PaddleOCR\%(_BgiExtraFile.RelativePath)" />
+			<BgiPluginFile Include="@(BgiPluginContent->'%(FullPath)')"
+			               PluginPath="%(BgiPluginContent.Identity)" />
+			<BgiPluginFile Include="$(TargetPath)" PluginPath="$(TargetFileName)" />
+			<BgiPluginFile Include="$(TargetDir)$(TargetName).pdb"
+			               PluginPath="$(TargetName).pdb"
+			               Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+			<BgiPluginFile Include="$(ProjectDepsFilePath)"
+			               PluginPath="$(TargetName).deps.json"
+			               Condition="Exists('$(ProjectDepsFilePath)')" />
+		</ItemGroup>
+	</Target>
+
+	<!-- 生成插件目录、plugin.json 和 zip 安装包 -->
+	<Target Name="BgiStagePlugin"
+	        AfterTargets="Build"
+	        DependsOnTargets="BgiCollectPluginFiles"
+	        Condition="'$(BgiPluginId)' != ''">
+		<!-- sdk_version 取主程序工程的版本，即编译时使用的 BetterGI 版本 -->
+		<XmlPeek XmlInputPath="$(BetterGIProjectPath)" Query="/Project/PropertyGroup/Version/text()">
+			<Output TaskParameter="Result" PropertyName="BgiSdkVersion" />
+		</XmlPeek>
+
+		<RemoveDir Directories="$(BgiStageDir)" />
+		<Copy SourceFiles="@(BgiPluginFile)" DestinationFiles="@(BgiPluginFile->'$(BgiStageDir)%(PluginPath)')" />
+
+		<!-- 清单字段中不要使用双引号和反斜杠，这里不做 JSON 转义 -->
+		<ItemGroup>
+			<_BgiManifestLine Include="{" />
+			<_BgiManifestLine Include="&quot;manifest_version&quot;: 1," />
+			<_BgiManifestLine Include="&quot;id&quot;: &quot;$(BgiPluginId)&quot;," />
+			<_BgiManifestLine Include="&quot;name&quot;: &quot;$(BgiPluginName)&quot;," />
+			<_BgiManifestLine Include="&quot;version&quot;: &quot;$(Version)&quot;," />
+			<_BgiManifestLine Include="&quot;authors&quot;: [&quot;$(Authors)&quot;]," />
+			<_BgiManifestLine Include="&quot;description&quot;: &quot;$(Description)&quot;," />
+			<_BgiManifestLine Include="&quot;entry&quot;: &quot;$(TargetFileName)&quot;," />
+			<_BgiManifestLine Include="&quot;sdk_version&quot;: &quot;$(BgiSdkVersion)&quot;," />
+			<_BgiManifestLine Include="&quot;max_host_version&quot;: &quot;&quot;," />
+			<_BgiManifestLine Include="&quot;package_id&quot;: &quot;$(PackageId)&quot;," />
+			<_BgiManifestLine Include="&quot;homepage&quot;: &quot;$(PackageProjectUrl)&quot;" />
+			<_BgiManifestLine Include="}" />
+		</ItemGroup>
+		<WriteLinesToFile File="$(BgiStageDir)plugin.json" Lines="@(_BgiManifestLine)" Overwrite="true" />
+
+		<MakeDir Directories="$(BgiArtifactsDir)" />
+		<ZipDirectory SourceDirectory="$(BgiStageDir)"
+		              DestinationFile="$(BgiArtifactsDir)$(BgiPluginId)-$(Version).zip"
+		              Overwrite="true" />
+		<Message Importance="high" Text="插件 $(BgiPluginId) → $(BgiArtifactsDir)$(BgiPluginId)-$(Version).zip" />
+
+		<!-- Debug：复制到主程序 Debug 输出的 Plugins 目录。主程序已加载该插件时文件被占用，只给出警告 -->
+		<ItemGroup>
+			<_BgiStagedFile Include="$(BgiStageDir)**\*" />
+		</ItemGroup>
+		<Copy Condition="'$(Configuration)' == 'Debug' And '$(BgiCopyToHost)' == 'true' And Exists('$(BgiHostOutputDir)')"
+		      SourceFiles="@(_BgiStagedFile)"
+		      DestinationFiles="@(_BgiStagedFile->'$(BgiHostOutputDir)Plugins\$(BgiPluginId)\%(RecursiveDir)%(Filename)%(Extension)')"
+		      ContinueOnError="WarnAndContinue" />
+	</Target>
+
+	<!-- dotnet pack：把插件目录放进包内 plugin\ -->
+	<Target Name="BgiAddPluginToPackage" DependsOnTargets="BgiStagePlugin">
+		<ItemGroup>
+			<TfmSpecificPackageFile Include="$(BgiStageDir)**\*"
+			                        PackagePath="plugin\%(RecursiveDir)%(Filename)%(Extension)" />
+		</ItemGroup>
+	</Target>
+</Project>

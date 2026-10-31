@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- 插件标识与名称，写入 plugin.json -->
+		<BgiPluginId>experimental_teleport</BgiPluginId>
+		<BgiPluginName>实验传送</BgiPluginName>
+		<Version>1.0.0</Version>
+		<Description>来自 PR #3697 的实验性传送：替换地图打开、区域切换、地图拖动、缩放和传送确认的页面状态控制，其他流程沿用内置传送。</Description>
+		<!-- 插件设置界面使用 XAML -->
+		<UseWPF>true</UseWPF>
+		<!-- 不使用 OCR 插件的共享源码 -->
+		<BgiIncludeSharedSource>false</BgiIncludeSharedSource>
+	</PropertyGroup>
+
+	<!-- 识别素材，按相对路径放进插件目录 -->
+	<ItemGroup>
+		<BgiPluginContent Include="Assets\**\*.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- [ObservableProperty]、[RelayCommand] 的源码生成器不会随主程序工程传递，需要直接引用；运行时使用主程序的程序集 -->
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" ExcludeAssets="runtime" />
+	</ItemGroup>
+
+</Project>

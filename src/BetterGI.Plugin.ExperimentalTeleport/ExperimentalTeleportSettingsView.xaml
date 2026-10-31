@@ -1,0 +1,206 @@
+<UserControl x:Class="BetterGI.Plugin.ExperimentalTeleport.ExperimentalTeleportSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:BetterGI.Plugin.ExperimentalTeleport"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             d:DataContext="{d:DesignInstance Type=local:ExperimentalTeleportSettingsViewModel}"
+             d:DesignWidth="700"
+             mc:Ignorable="d">
+
+    <!--  插件视图只使用自己声明的资源和应用级主题资源，不依赖插件页的资源  -->
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <!--  参数说明文字  -->
+        <Style x:Key="ParameterDescription"
+               BasedOn="{StaticResource {x:Type TextBlock}}"
+               TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorTertiaryBrush}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <!--  参数输入框  -->
+        <Style x:Key="ParameterNumberBox"
+               BasedOn="{StaticResource {x:Type ui:NumberBox}}"
+               TargetType="ui:NumberBox">
+            <Setter Property="Width" Value="160" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="SmallChange" Value="1" />
+            <Setter Property="MaxDecimalPlaces" Value="0" />
+            <Setter Property="SpinButtonPlacementMode" Value="Inline" />
+        </Style>
+        <!--  一行参数：左侧名称，右侧输入  -->
+        <Style x:Key="ParameterRow" TargetType="Grid">
+            <Setter Property="Margin" Value="0,4" />
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <TextBlock Style="{StaticResource ParameterDescription}"
+                   Text="仅替换地图打开、区域切换、地图拖动、缩放和传送确认的页面状态控制，其他流程沿用内置传送。在插件页“功能选择 → 传送”中选择“实验传送”后生效，修改在下一次传送时生效。" />
+
+        <!--  高级参数开关  -->
+        <Grid Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Margin="0,0,16,0" VerticalAlignment="Center">
+                <ui:TextBlock FontTypography="Body" Text="启用高级参数" />
+                <TextBlock Style="{StaticResource ParameterDescription}" Text="关闭时由“设置 → 传送 → 操作速度”自动计算参数。仅当你了解对应参数含义时才进行调节。" />
+            </StackPanel>
+            <ui:ToggleSwitch Grid.Column="1"
+                             VerticalAlignment="Center"
+                             IsChecked="{Binding UseAdvancedParameters, Mode=TwoWay}" />
+        </Grid>
+
+        <!--  自动计算的参数  -->
+        <TextBlock Margin="0,8,0,0"
+                   Style="{StaticResource ParameterDescription}"
+                   Text="{Binding AutoParametersText, Mode=OneWay}"
+                   Visibility="{Binding UseAutoParameters, Mode=OneWay, Converter={StaticResource BoolToVisibility}}" />
+
+        <!--  高级参数  -->
+        <StackPanel Margin="0,8,0,0" Visibility="{Binding UseAdvancedParameters, Mode=OneWay, Converter={StaticResource BoolToVisibility}}">
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock VerticalAlignment="Center" Text="理论拖动距离修正倍率" />
+                <ui:NumberBox Grid.Column="1"
+                              MaxDecimalPlaces="2"
+                              Maximum="3"
+                              Minimum="0.1"
+                              SmallChange="0.01"
+                              Style="{StaticResource ParameterNumberBox}"
+                              Value="{Binding DragDistanceCorrection, Mode=TwoWay}" />
+            </Grid>
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock VerticalAlignment="Center" Text="单步最大输入距离（像素）" />
+                <ui:NumberBox Grid.Column="1"
+                              Maximum="1000"
+                              Minimum="1"
+                              Style="{StaticResource ParameterNumberBox}"
+                              Value="{Binding MaxSingleStepDistancePixels, Mode=TwoWay}" />
+            </Grid>
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock VerticalAlignment="Center" Text="拖动步进间隔（毫秒）" />
+                <ui:NumberBox Grid.Column="1"
+                              Maximum="100"
+                              Minimum="1"
+                              Style="{StaticResource ParameterNumberBox}"
+                              Value="{Binding DragStepIntervalMilliseconds, Mode=TwoWay}" />
+            </Grid>
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock VerticalAlignment="Center" Text="状态识别轮询间隔（毫秒）" />
+                <ui:NumberBox Grid.Column="1"
+                              Maximum="1000"
+                              Minimum="1"
+                              Style="{StaticResource ParameterNumberBox}"
+                              Value="{Binding StateRecognitionIntervalMilliseconds, Mode=TwoWay}" />
+            </Grid>
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock VerticalAlignment="Center" Text="状态识别轮询开始前等待（毫秒）" />
+                <ui:NumberBox Grid.Column="1"
+                              Maximum="2000"
+                              Minimum="1"
+                              Style="{StaticResource ParameterNumberBox}"
+                              Value="{Binding StateRecognitionInitialDelayMilliseconds, Mode=TwoWay}" />
+            </Grid>
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock VerticalAlignment="Center" Text="状态切换等待上限（毫秒）" />
+                <ui:NumberBox Grid.Column="1"
+                              Maximum="10000"
+                              Minimum="1"
+                              Style="{StaticResource ParameterNumberBox}"
+                              Value="{Binding StateTransitionTimeoutMilliseconds, Mode=TwoWay}" />
+            </Grid>
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock VerticalAlignment="Center" Text="打开地图总超时（毫秒）" />
+                <ui:NumberBox Grid.Column="1"
+                              Maximum="60000"
+                              Minimum="1"
+                              Style="{StaticResource ParameterNumberBox}"
+                              Value="{Binding MapOpenTimeoutMilliseconds, Mode=TwoWay}" />
+            </Grid>
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock VerticalAlignment="Center" Text="打开地图补按 M 间隔（毫秒）" />
+                <ui:NumberBox Grid.Column="1"
+                              Maximum="30000"
+                              Minimum="1"
+                              Style="{StaticResource ParameterNumberBox}"
+                              Value="{Binding MapOpenRepressIntervalMilliseconds, Mode=TwoWay}" />
+            </Grid>
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock VerticalAlignment="Center" Text="按下左键后开始拖动延迟（毫秒）" />
+                <ui:NumberBox Grid.Column="1"
+                              Maximum="1000"
+                              Minimum="1"
+                              Style="{StaticResource ParameterNumberBox}"
+                              Value="{Binding DragStartDelayMilliseconds, Mode=TwoWay}" />
+            </Grid>
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBlock VerticalAlignment="Center" Text="拖动结束后松开左键延迟（毫秒）" />
+                <ui:NumberBox Grid.Column="1"
+                              Maximum="2000"
+                              Minimum="1"
+                              Style="{StaticResource ParameterNumberBox}"
+                              Value="{Binding DragReleaseDelayMilliseconds, Mode=TwoWay}" />
+            </Grid>
+            <Grid Style="{StaticResource ParameterRow}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Margin="0,0,16,0" VerticalAlignment="Center">
+                    <ui:TextBlock Text="输出详细调试日志" />
+                    <TextBlock Style="{StaticResource ParameterDescription}" Text="记录每次拖动、状态识别和参数，日志级别为 Debug。" />
+                </StackPanel>
+                <ui:ToggleSwitch Grid.Column="1"
+                                 VerticalAlignment="Center"
+                                 IsChecked="{Binding DetailedLogs, Mode=TwoWay}" />
+            </Grid>
+            <ui:Button Margin="0,8,0,0"
+                       Command="{Binding ResetAdvancedParametersCommand}"
+                       Content="恢复默认参数"
+                       Icon="{ui:SymbolIcon ArrowReset24}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

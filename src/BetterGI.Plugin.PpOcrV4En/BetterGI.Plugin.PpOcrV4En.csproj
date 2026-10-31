@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- 插件标识与名称，写入 plugin.json -->
+		<BgiPluginId>ppocr_v4_en</BgiPluginId>
+		<BgiPluginName>PaddleOCR V4 英文</BgiPluginName>
+		<Version>1.0.0</Version>
+		<Description>PP-OCRv4 检测与英文、数字识别模型。</Description>
+	</PropertyGroup>
+
+	<!-- 需要的模型目录和文件，相对资源包的 Assets\Model\PaddleOCR -->
+	<ItemGroup>
+		<BgiPaddleOcrModel Include="Det\V4\PP-OCRv4_mobile_det_infer" />
+		<BgiPaddleOcrModel Include="Rec\V4\en_PP-OCRv4_mobile_rec_infer" />
+		<!-- 英文模型使用数字预热图 -->
+		<BgiPaddleOcrFile Include="test_pp_ocr_number.png" />
+	</ItemGroup>
+
+</Project>

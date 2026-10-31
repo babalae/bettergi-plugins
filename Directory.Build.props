@@ -1,0 +1,30 @@
+<Project>
+	<!--
+		所有插件工程的公共属性。插件引用 BetterGI 主程序工程开发，主程序仓库默认与本仓库并列：
+		  E:\...\better-genshin-impact
+		  E:\...\bettergi-plugins
+		位置不同时用 -p:BetterGIRepoDir=<主程序仓库目录>\ 覆盖。
+	-->
+	<PropertyGroup>
+		<TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<LangVersion>14.0</LangVersion>
+		<!-- 主程序只支持 win-x64 -->
+		<PlatformTarget>x64</PlatformTarget>
+		<Authors>BetterGI</Authors>
+		<PackageProjectUrl>https://github.com/babalae/bettergi-plugins</PackageProjectUrl>
+
+		<!-- 主程序仓库与工程 -->
+		<BetterGIRepoDir Condition="'$(BetterGIRepoDir)' == ''">$(MSBuildThisFileDirectory)..\better-genshin-impact\</BetterGIRepoDir>
+		<BetterGIProjectPath>$(BetterGIRepoDir)BetterGenshinImpact\BetterGenshinImpact.csproj</BetterGIProjectPath>
+		<!-- Debug 构建后把插件复制到主程序 Debug 输出的 Plugins 目录，便于本地调试；设为 false 关闭 -->
+		<BgiCopyToHost Condition="'$(BgiCopyToHost)' == ''">true</BgiCopyToHost>
+		<BgiHostOutputDir>$(BetterGIRepoDir)BetterGenshinImpact\bin\x64\$(Configuration)\net10.0-windows10.0.22621.0\</BgiHostOutputDir>
+
+		<!-- 构建产物：artifacts\plugins\<插件标识>\ 为插件目录，artifacts\<插件标识>-<版本>.zip 为安装包 -->
+		<BgiArtifactsDir>$(MSBuildThisFileDirectory)artifacts\</BgiArtifactsDir>
+
+		<!-- PaddleOCR 模型来自 BetterGI.Assets.Model 包，与主程序使用同一版本 -->
+		<BgiAssetsModelVersion>1.0.39</BgiAssetsModelVersion>
+	</PropertyGroup>
+</Project>
