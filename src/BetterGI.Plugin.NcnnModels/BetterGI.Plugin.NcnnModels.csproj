@@ -9,7 +9,8 @@
 
 		<!-- 本插件不含任何 [PluggableImpl] 实现，不需要共享 OCR 源码 -->
 		<BgiIncludeSharedSource>false</BgiIncludeSharedSource>
-		<!-- 不声明 BgiPaddleOcrModel，但 targets 仍会引用该包取路径；覆盖为本地已有版本避免下载 -->
+		<!-- 不声明 BgiPaddleOcrModel，但 Directory.Build.targets 仍会引用该包来取模型根路径；
+		     版本与主程序保持一致（BetterGenshinImpact.csproj 同为 1.0.41），避免两处漂移 -->
 		<BgiAssetsModelVersion>1.0.41</BgiAssetsModelVersion>
 	</PropertyGroup>
 
