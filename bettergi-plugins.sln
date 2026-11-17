@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fischless.WindowsInput", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterGI.Plugin.ExperimentalTeleport", "src\BetterGI.Plugin.ExperimentalTeleport\BetterGI.Plugin.ExperimentalTeleport.csproj", "{CDE0E980-2FC9-47AB-890C-5E9FAA631453}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterGI.Plugin.NcnnModels", "src\BetterGI.Plugin.NcnnModels\BetterGI.Plugin.NcnnModels.csproj", "{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -171,6 +173,18 @@ Global
 		{CDE0E980-2FC9-47AB-890C-5E9FAA631453}.Release|x64.Build.0 = Release|Any CPU
 		{CDE0E980-2FC9-47AB-890C-5E9FAA631453}.Release|x86.ActiveCfg = Release|Any CPU
 		{CDE0E980-2FC9-47AB-890C-5E9FAA631453}.Release|x86.Build.0 = Release|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Debug|x64.Build.0 = Debug|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Debug|x86.Build.0 = Debug|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Release|x64.ActiveCfg = Release|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Release|x64.Build.0 = Release|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Release|x86.ActiveCfg = Release|Any CPU
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -187,5 +201,6 @@ Global
 		{08189F19-178D-4686-AC14-17C0B0E57825} = {5E7786D3-1A2C-5CEE-955B-BCADF53B3847}
 		{5588F823-3D48-4C9D-BC07-7EEFBF079919} = {5E7786D3-1A2C-5CEE-955B-BCADF53B3847}
 		{CDE0E980-2FC9-47AB-890C-5E9FAA631453} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{6A34A68E-3330-42EC-B4CA-6DE3C63234C0} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

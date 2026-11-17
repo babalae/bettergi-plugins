@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- 插件标识与名称，写入 plugin.json；标识同时是安装目录名，须与主程序 NcnnModelPaths.PluginId 一致 -->
+		<BgiPluginId>ncnn_models</BgiPluginId>
+		<BgiPluginName>ncnn 模型</BgiPluginName>
+		<Version>1.0.0</Version>
+		<Description>ncnn 推理后端所需的 det/rec/YOLO 模型文件（.param/.bin），安装后由主程序 ncnn 后端从插件目录加载，不随主程序资源包分发。</Description>
+
+		<!-- 本插件不含任何 [PluggableImpl] 实现，不需要共享 OCR 源码 -->
+		<BgiIncludeSharedSource>false</BgiIncludeSharedSource>
+		<!-- 不声明 BgiPaddleOcrModel，但 targets 仍会引用该包取路径；覆盖为本地已有版本避免下载 -->
+		<BgiAssetsModelVersion>1.0.41</BgiAssetsModelVersion>
+	</PropertyGroup>
+
+	<!-- 插件自带的 ncnn 模型，按相同相对路径放进插件目录 Models/<类别>/Ncnn/ -->
+	<ItemGroup>
+		<BgiPluginContent Include="Models\**\*" />
+	</ItemGroup>
+
+</Project>
