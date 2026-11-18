@@ -37,6 +37,14 @@ BetterGI 官方插件的开发仓库。插件机制的设计见主程序仓库�
 
 在 BetterGI 的插件页安装并启用后，到“设置 → 软件UI语言”中选择。已选择的语言在插件停用后回退为简体中文，重新启用后自动恢复。
 
+### ncnn 模型资源
+
+| 插件标识 | 名称 | 说明 |
+| --- | --- | --- |
+| `ncnn_models` | ncnn 模型 | ncnn 推理后端所需的 det/rec 与 YOLO/分类模型（.param/.bin） |
+
+与其他插件不同，这个插件**不提供任何 `[PluggableImpl]` 实现**，只通过 `BgiPluginContent` 附带 ncnn 模型文件——空壳入口 dll 仅用于通过插件清单的入口校验。它让 ncnn 模型独立于主程序资源包分发：安装后模型位于 `Plugins/ncnn_models/Models/<类别>/Ncnn/`，主程序按此约定读取（见 `NcnnModelPaths`），与插件的启用/可插拔状态无关。这类模型不走 `BgiPaddleOcrModel`，因此工程把 `BgiIncludeSharedSource` 设为 `false`。
+
 ## 目录结构
 
 ```text
