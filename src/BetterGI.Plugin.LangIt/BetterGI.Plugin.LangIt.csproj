@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- 插件标识与名称，写入 plugin.json -->
+		<BgiPluginId>lang_it</BgiPluginId>
+		<BgiPluginName>界面语言：意大利语</BgiPluginName>
+		<Version>1.0.0</Version>
+		<Description>为 BetterGI 界面提供意大利语（Italiano）。</Description>
+		<!-- 不使用 OCR 插件的共享源码 -->
+		<BgiIncludeSharedSource>false</BgiIncludeSharedSource>
+	</PropertyGroup>
+
+	<!-- 语言文件，按相对路径放进插件目录 -->
+	<ItemGroup>
+		<BgiPluginContent Include="I18n\it.json" />
+	</ItemGroup>
+
+</Project>

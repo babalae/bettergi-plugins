@@ -27,6 +27,16 @@ BetterGI 官方插件的开发仓库。插件机制的设计见主程序仓库�
 
 每个插件提供一个 OCR 模型实现，标识为 `<插件标识>.model`。在 BetterGI 的插件页安装并启用后，到“设置 → OCR 配置 → OCR 模型”中选择（插件页的“功能选择”中也能选）。
 
+### 界面语言
+
+主程序内置简体中文、繁體中文、English、日本語、Русский，其他界面语言在这里以插件形式提供，每种语言一个插件。设计见主程序仓库的 [Docs/design/ui-language-plugin.md](https://github.com/babalae/better-genshin-impact/blob/main/Docs/design/ui-language-plugin.md)。
+
+| 插件标识 | 名称 | 语言 |
+| --- | --- | --- |
+| `lang_it` | 界面语言：意大利语 | Italiano（`it`） |
+
+在 BetterGI 的插件页安装并启用后，到“设置 → 软件UI语言”中选择。已选择的语言在插件停用后回退为简体中文，重新启用后自动恢复。
+
 ## 目录结构
 
 ```text
@@ -36,6 +46,7 @@ bettergi-plugins/
 ├─ bettergi-plugins.sln       插件工程，以及用于编译和调试的主程序工程
 └─ src/
    ├─ Shared/PpOcrModels.cs   OCR 插件共用的模型组合代码
+   ├─ BetterGI.Plugin.Lang*/  语言插件，翻译文件在工程的 I18n/ 下
    └─ BetterGI.Plugin.*/      每个插件一个工程
 ```
 
@@ -101,3 +112,13 @@ dotnet pack src/BetterGI.Plugin.PpOcrV5/BetterGI.Plugin.PpOcrV5.csproj -c Releas
 4. `dotnet sln bettergi-plugins.sln add <工程> --solution-folder src --include-references false`。
 
 清单 `plugin.json` 由构建生成，不需要手写。清单字段中不要使用双引号和反斜杠。
+
+## 新增一个语言插件
+
+1. 复制 `src/BetterGI.Plugin.LangIt`，修改目录名和工程文件名，如 `BetterGI.Plugin.LangPtBr`；
+2. 在工程文件中修改 `BgiPluginId`（`lang_<语言代码>`，代码转小写、`-` 换成 `_`，如 `lang_pt_br`）、`BgiPluginName`、`Description`，以及 `BgiPluginContent` 中的语言文件；
+3. 修改 `PluginInfo.cs` 中的程序集特性，如 `[assembly: UiLanguage("pt-BR", "Português (Brasil)")]`。语言文件默认为插件目录下的 `I18n/<语言代码>.json`，其他位置用特性的 `File` 属性指定；
+4. 把语言文件放到工程的 `I18n/` 下，Key 为简体中文原文，值为翻译，空字符串表示未翻译（界面显示中文）。在主程序仓库运行 `.\Build\Scripts\i18n-sync.ps1`，会一并补齐插件中缺少的 Key、删除废弃 Key；
+5. `dotnet sln bettergi-plugins.sln add <工程> --solution-folder src --include-references false`。
+
+语言代码与内置语言相同（如 `en`）时，插件覆盖内置翻译：插件中非空的条目优先，其余条目仍取内置翻译。
